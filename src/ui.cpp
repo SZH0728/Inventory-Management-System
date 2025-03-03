@@ -1,4 +1,4 @@
-#include "../include/ui.h"
+﻿#include "../include/ui.h"
 
 #include <iostream>
 
@@ -42,7 +42,7 @@ int Interface::ask() const {
         const int choice = get_valid_choice(); // 获取有效输入
         if (choice == 0) break; // 处理退出选项
 
-        const option target = options.at(choice);
+        const option target = options.at(choice - 1);
         if (target.function_pointer() == -1) {  // 执行选项关联的函数
             break; // 如果返回-1则退出循环
         }
@@ -56,7 +56,7 @@ void Interface::show_menu() const {
 
     // 遍历显示所有选项
     for (size_t i = 0; i < options.size(); i++) {
-        std::cout << i << ": " << options[i].context << std::endl;
+        std::cout << i + 1 << ": " << options[i].context << std::endl;
     }
 
     // 显示退出选项（如果启用）
@@ -114,7 +114,7 @@ bool Interface::is_valid_choice(const int choice) const {
     }
 
     // 检查选项索引越界
-    if (choice < 0 || choice >= options.size()) {
+    if (choice < 0 || choice > options.size()) {
         std::cout << "输入范围错误" << std::endl;
         return false;
     }
