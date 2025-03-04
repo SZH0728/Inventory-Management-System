@@ -12,13 +12,13 @@
 #include <string>
 
 /**
- * @struct option
+ * @struct Option
  * @brief 表示界面中的单个选项
  *
  * @var context 选项显示文本
  * @var function_pointer 选项关联的函数指针，返回int类型状态码
  */
-struct option {
+struct Option {
     std::string context;
 
     int (*function_pointer)();
@@ -33,7 +33,7 @@ struct option {
 class Interface {
 private:
     std::string question; ///< 界面顶部显示的问题/提示语
-    std::vector<option> options; ///< 存储当前可用选项的容器
+    std::vector<Option> options; ///< 存储当前可用选项的容器
     bool end_option; ///< 是否自动添加退出选项标志位
 
     /**
@@ -85,7 +85,7 @@ public:
      * @brief 添加新选项到界面
      * @param target 要添加的选项结构体
      */
-    void append(const option &target);
+    void append(const Option &target);
 
     /**
      * @brief 移除指定索引的选项
