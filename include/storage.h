@@ -56,8 +56,6 @@ public:
 
 
 class OperationFile: public BaseFile {
-private:
-
 public:
     using BaseFile::BaseFile;
     bool append(const std::string &line);
