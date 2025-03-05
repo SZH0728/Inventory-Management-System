@@ -171,6 +171,9 @@ public:
      * @note 清空后文件内容为空
      */
     std::list<std::string> clear();
+
+
+ int size();
 };
 
 #endif //FILE_H

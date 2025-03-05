@@ -17,7 +17,7 @@ constexpr int MAX_NUMBER = 10; ///< 商品品牌最大数量限制
  */
 struct Brand {
     std::string name; ///< 品牌名称（唯一标识）
-    int code; ///< 品牌编码（4位数字）
+    int code; ///< 品牌编码
     int quantity; ///< 当前库存数量
     float price; ///< 单品价格
 };

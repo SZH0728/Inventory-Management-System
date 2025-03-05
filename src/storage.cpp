@@ -174,6 +174,7 @@ bool OperationFile::append(const std::string &line) {
         return false;
     }
     file << line << std::endl;
+    file.flush();
 
     reduction();
     return true;
@@ -206,6 +207,7 @@ std::string OperationFile::pop() {
         newFile << line << std::endl;
     }
 
+    newFile.flush();
     reduction();
     return last; // 返回被删除的最后一条记录
 }
@@ -228,3 +230,24 @@ std::list<std::string> OperationFile::clear() {
     clear_file_context();
     return lines;
 }
+
+
+int OperationFile::size() {
+    int count = 0;
+    std::fstream& file = get_file_object();
+
+    if (!file.is_open()) {
+        return 0; // 文件未打开返回0
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+        if (!line.empty() && line[0] == '[') {
+            ++count;
+        }
+    }
+
+    reduction(); // 重置指针以便后续操作
+    return count;
+}
+
