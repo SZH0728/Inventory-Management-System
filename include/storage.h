@@ -44,6 +44,8 @@ protected:
      */
     void clear_file_context();
 
+    void reduction();
+
 public:
     /**
      * @brief 打开文件流

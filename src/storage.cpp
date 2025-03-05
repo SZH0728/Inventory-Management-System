@@ -63,6 +63,19 @@ void BaseFile::clear_file_context() {
 }
 
 
+void BaseFile::reduction() {
+    if (!has_file_object) {
+        return;
+    }
+
+    std::fstream file = get_file_object();
+    file.clear();
+
+    file.seekg(0, std::ios::beg);
+    file.seekp(0, std::ios::beg);
+}
+
+
 
 bool BaseFile::set_file_path(std::string new_file_path) {
     if (has_file_object) {
@@ -135,6 +148,7 @@ bool WriteDataFile::write(const std::list<Item>& items) {
         file << std::endl;
     }
 
+    reduction();
     return true;
 }
 
@@ -248,6 +262,7 @@ std::list<Item> ReadDataFile::read() {
         items.push_back(current_item);
     }
 
+    reduction();
     return items;
 }
 
@@ -265,6 +280,7 @@ bool OperationFile::append(const std::string &line) {
     }
     file << line << std::endl;
 
+    reduction();
     return true;
 }
 
@@ -295,6 +311,7 @@ std::string OperationFile::pop() {
         newFile << line << std::endl;
     }
 
+    reduction();
     return last;
 }
 
