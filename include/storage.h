@@ -86,33 +86,7 @@ public:
  * @class WriteDataFile
  * @brief CSV数据写入操作类
  */
-class WriteDataFile : virtual public BaseFile {
-private:
-    /**
-     * @brief 转义CSV字段特殊字符
-     * @param field 原始字段字符串
-     * @return 转义后的合规CSV字段
-     * @details 处理规则：
-     * - 包含逗号、换行符、双引号时添加外围双引号
-     * - 内部双引号转换为两个连续双引号
-     */
-    static std::string escape_csv_field(const std::string &field);
-
-    /**
-     * @brief 序列化Brand对象为CSV行
-     * @param brand 品牌数据对象
-     * @return 格式为 "name,code,quantity,price"的CSV行
-     */
-    static std::string brand_to_csv(const Brand &brand);
-
-    /**
-     * @brief 序列化Item对象为CSV行
-     * @param item 商品数据对象
-     * @return 格式为"name,code,colour,quantity"的CSV行
-     * @note 关联的Brand数据会作为后续行单独写入
-     */
-    static std::string item_to_csv(const Item &item);
-
+class WriteDataFile : virtual public BaseFile, public WriteLogic{
 public:
     using BaseFile::BaseFile;
 
@@ -133,29 +107,7 @@ public:
  * @class ReadDataFile
  * @brief CSV数据读取操作类
  */
-class ReadDataFile : virtual public BaseFile {
-private:
-    /**
-     * @brief 反转义CSV字段
-     * @param field 转义后的CSV字段
-     * @return 原始字段内容
-     */
-    static std::string unescape_csv_field(const std::string &field);
-
-    /**
-     * @brief 解析品牌CSV行
-     * @param line CSV格式字符串
-     * @return 解析后的Brand对象
-     */
-    static Brand parse_brand_line(const std::string &line);
-
-    /**
-     * @brief 解析商品CSV行
-     * @param line CSV格式字符串
-     * @return 解析后的Item对象
-     */
-    static Item parse_item_line(const std::string &line);
-
+class ReadDataFile : virtual public BaseFile, public ReadLogic{
 public:
     using BaseFile::BaseFile;
 
@@ -174,7 +126,7 @@ public:
  * @class DataFile
  * @brief 数据文件综合操作类
  */
-class DataFile : public ReadDataFile, public WriteDataFile {
+class DataFile final : public ReadDataFile, public WriteDataFile {
 public:
     /**
      * @brief 构造数据文件对象
