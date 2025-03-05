@@ -6,12 +6,6 @@
 #ifndef DATATYPE_H
 #define DATATYPE_H
 
-#ifdef TEST_MODE
-#define private public
-#define protected public
-#endif
-
-
 #include <string>
 #include <list>
 

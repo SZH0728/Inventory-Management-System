@@ -2,11 +2,6 @@
 #ifndef PERSISTER_H
 #define PERSISTER_H
 
-#ifdef TEST_MODE
-#define private public
-#define protected public
-#endif
-
 #include "datatype.h"
 #include "storage.h"
 
