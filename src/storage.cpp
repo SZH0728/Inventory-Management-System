@@ -1,5 +1,4 @@
-﻿
-#include "../include/storage.h"
+﻿#include "../include/storage.h"
 
 #include <sstream>
 #include <iostream>
@@ -18,7 +17,7 @@ bool BaseFile::open_file_object() {
     struct stat buffer{};
     if (stat(path.c_str(), &buffer) == 0) {
         file.open(path, std::ios::in | std::ios::out);
-    }else {
+    } else {
         file.open(path, std::ios::in | std::ios::out | std::ios::trunc);
     }
 
@@ -76,7 +75,6 @@ void BaseFile::reduction() {
 }
 
 
-
 bool BaseFile::set_file_path(std::string new_file_path) {
     if (has_file_object) {
         return false;
@@ -87,14 +85,13 @@ bool BaseFile::set_file_path(std::string new_file_path) {
 }
 
 
-
-std::string WriteDataFile::escape_csv_field(const std::string& field) {
+std::string WriteDataFile::escape_csv_field(const std::string &field) {
     if (field.find('"') != std::string::npos || field.find(',') != std::string::npos) {
         std::string escaped;
         escaped.reserve(field.length() + 2);
         escaped += '"';
 
-        for (const char c : field) {
+        for (const char c: field) {
             if (c == '"') escaped += "\"\""; // 双引号转义为两个双引号
             else escaped += c;
         }
@@ -109,10 +106,10 @@ std::string WriteDataFile::escape_csv_field(const std::string& field) {
 std::string WriteDataFile::brand_to_csv(const Brand &brand) {
     std::ostringstream oss;
     oss << "BRAND|"
-        << escape_csv_field(brand.name) << ","
-        << brand.code << ","
-        << brand.quantity << ","
-        << brand.price;
+            << escape_csv_field(brand.name) << ","
+            << brand.code << ","
+            << brand.quantity << ","
+            << brand.price;
     return oss.str();
 }
 
@@ -120,15 +117,15 @@ std::string WriteDataFile::brand_to_csv(const Brand &brand) {
 std::string WriteDataFile::item_to_csv(const Item &item) {
     std::ostringstream oss;
     oss << "ITEM|"
-        << escape_csv_field(item.name) << ","
-        << item.code << ","
-        << escape_csv_field(item.colour) << ","
-        << item.quantity;
+            << escape_csv_field(item.name) << ","
+            << item.code << ","
+            << escape_csv_field(item.colour) << ","
+            << item.quantity;
     return oss.str();
 }
 
 
-bool WriteDataFile::write(const std::list<Item>& items) {
+bool WriteDataFile::write(const std::list<Item> &items) {
     clear_file_context();
     std::fstream file = get_file_object();
 
@@ -136,7 +133,7 @@ bool WriteDataFile::write(const std::list<Item>& items) {
         return false;
     }
 
-    for (auto &item : items) {
+    for (auto &item: items) {
         std::string item_row = item_to_csv(item);
         file << item_row << std::endl;
 
@@ -153,13 +150,13 @@ bool WriteDataFile::write(const std::list<Item>& items) {
 }
 
 
-std::string ReadDataFile::unescape_csv_field(const std::string& field) {
+std::string ReadDataFile::unescape_csv_field(const std::string &field) {
     if (field.size() >= 2 && field.front() == '"' && field.back() == '"') {
         std::string unescaped;
         unescaped.reserve(field.length());
 
         for (size_t i = 1; i < field.size() - 1; ++i) {
-            if (field[i] == '"' && field[i+1] == '"' && i+1 < field.size()-1) {
+            if (field[i] == '"' && field[i + 1] == '"' && i + 1 < field.size() - 1) {
                 unescaped += '"';
                 ++i;
             } else {
@@ -172,7 +169,7 @@ std::string ReadDataFile::unescape_csv_field(const std::string& field) {
 }
 
 
-Brand ReadDataFile::parse_brand_line(const std::string& line) {
+Brand ReadDataFile::parse_brand_line(const std::string &line) {
     std::istringstream iss(line.substr(6)); // 跳过"BRAND|"
     std::string token;
     Brand brand;
@@ -197,7 +194,7 @@ Brand ReadDataFile::parse_brand_line(const std::string& line) {
 }
 
 
-Item ReadDataFile::parse_item_line(const std::string& line) {
+Item ReadDataFile::parse_item_line(const std::string &line) {
     std::istringstream iss(line.substr(5)); // 跳过"ITEM|"
     std::string token;
     Item item;
@@ -307,7 +304,7 @@ std::string OperationFile::pop() {
 
     clear_file_context();
     std::fstream newFile = get_file_object();
-    for (const auto& line : lines) {
+    for (const auto &line: lines) {
         newFile << line << std::endl;
     }
 
@@ -333,4 +330,3 @@ std::list<std::string> OperationFile::clear() {
     clear_file_context();
     return lines;
 }
-

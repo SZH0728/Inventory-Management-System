@@ -43,7 +43,8 @@ int Interface::ask() const {
         if (choice == 0) break; // 处理退出选项
 
         const Option target = options.at(choice - 1);
-        if (target.function_pointer() == -1) {  // 执行选项关联的函数
+        if (target.function_pointer() == -1) {
+            // 执行选项关联的函数
             break; // 如果返回-1则退出循环
         }
     }
@@ -52,7 +53,7 @@ int Interface::ask() const {
 
 
 void Interface::show_menu() const {
-    std::cout << question << std::endl;  // 显示问题描述
+    std::cout << question << std::endl; // 显示问题描述
 
     // 遍历显示所有选项
     for (size_t i = 0; i < options.size(); i++) {
@@ -72,10 +73,11 @@ int Interface::get_valid_choice() const {
         std::cout << "> ";
         std::getline(std::cin, input);
 
-        const int choice = validate_input(input);  // 输入验证
-        if (choice == -1) continue;  // 无效输入时重试
+        const int choice = validate_input(input); // 输入验证
+        if (choice == -1) continue; // 无效输入时重试
 
-        if (is_valid_choice(choice)) {  // 检查选项有效性
+        if (is_valid_choice(choice)) {
+            // 检查选项有效性
             return choice;
         }
     }
@@ -91,7 +93,7 @@ int Interface::validate_input(const std::string &input) {
 
     try {
         size_t pos = 0;
-        const int choice = std::stoi(input, &pos);  // 尝试转换为整数
+        const int choice = std::stoi(input, &pos); // 尝试转换为整数
 
         // 检查是否包含非法后缀字符
         if (pos != input.length()) {
@@ -99,7 +101,8 @@ int Interface::validate_input(const std::string &input) {
         }
 
         return choice;
-    } catch (...) {  // 捕获所有转换异常
+    } catch (...) {
+        // 捕获所有转换异常
         std::cout << "输入包含非法字符" << std::endl;
         return -1;
     }
