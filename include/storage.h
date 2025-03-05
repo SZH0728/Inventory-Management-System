@@ -29,7 +29,7 @@ protected:
      * @return 当前打开的文件流对象引用
      * @warning 需确保文件已通过open_file_object()成功打开
      */
-    std::fstream get_file_object();
+    std::fstream &get_file_object();
 
     /**
      * @brief 设置文件路径
@@ -39,22 +39,33 @@ protected:
     bool set_file_path(std::string new_file_path);
 
     /**
-   * @brief 重置文件流状态
-   * @details 执行以下清理操作：
-   * 1. 清除文件流的错误状态标志
-   * 2. 重置读写位置到文件起始位置
-   * @note 适用于需要重新从头读写文件的场景，需确保文件已通过open_file_object()成功打开
-   */
+     * @brief 清空文件内容
+     * @note 会立即清空文件所有内容
+     */
     void clear_file_context();
 
+    /**
+      * @brief 重置文件流状态
+      * @details 执行以下清理操作：
+      * 1. 清除文件流的错误状态标志
+      * 2. 重置读写位置到文件起始位置
+      * @note 适用于需要重新从头读写文件的场景，需确保文件已通过open_file_object()成功打开
+      */
     void reduction();
 
 public:
     /**
-     * @brief 打开文件流
-     * @return 成功打开返回true，文件已打开或路径无效时返回false
-     * @note 以读写模式打开文件，保留原有内容
+     * @brief 构造函数
+     * @param file_path 初始文件路径
+     * @note 不会自动打开文件，需显式调用open_file_object()
      */
+    explicit BaseFile(std::string file_path);
+
+    /**
+        * @brief 打开文件流
+        * @return 成功打开返回true，文件已打开或路径无效时返回false
+        * @note 以读写模式打开文件，保留原有内容
+        */
     bool open_file_object();
 
     /**
@@ -64,11 +75,10 @@ public:
     bool close_file_object();
 
     /**
-     * @brief 构造函数
-     * @param file_path 初始文件路径
-     * @note 不会自动打开文件，需显式调用open_file_object()
+     * @brief 析构函数
+     * @note 关闭文件流
      */
-    explicit BaseFile(std::string file_path);
+    virtual ~BaseFile();
 };
 
 

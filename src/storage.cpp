@@ -7,27 +7,34 @@ BaseFile::BaseFile(std::string file_path) {
     path = std::move(file_path);
 }
 
+BaseFile::~BaseFile() {
+    if (has_file_object) {
+        close_file_object();
+    }
+}
+
 
 bool BaseFile::open_file_object() {
     if (has_file_object) {
-        return false;
+        return false; // 防止重复打开
     }
 
     std::fstream file;
     struct stat buffer{};
+    // 根据文件存在性选择打开模式：存在则保留内容，不存在则创建
     if (stat(path.c_str(), &buffer) == 0) {
-        file.open(path, std::ios::in | std::ios::out);
+        file.open(path, std::ios::in | std::ios::out); // 读写模式
     } else {
-        file.open(path, std::ios::in | std::ios::out | std::ios::trunc);
+        file.open(path, std::ios::in | std::ios::out | std::ios::trunc); // 新建文件
     }
 
     if (!file.is_open()) {
-        const int errno_code = errno;
-        std::cout << "Error opening file: " << errno_code << std::endl;
+        // 错误处理
+        std::cout << "Error opening file: " << errno << std::endl;
         return false;
     }
 
-    file_object = std::move(file);
+    file_object = std::move(file); // 转移文件流所有权
     has_file_object = true;
     return true;
 }
@@ -44,8 +51,8 @@ bool BaseFile::close_file_object() {
 }
 
 
-std::fstream BaseFile::get_file_object() {
-    return std::move(file_object);
+std::fstream &BaseFile::get_file_object() {
+    return file_object;
 }
 
 
@@ -67,7 +74,7 @@ void BaseFile::reduction() {
         return;
     }
 
-    std::fstream file = get_file_object();
+    std::fstream &file = get_file_object();
     file.clear();
 
     file.seekg(0, std::ios::beg);
@@ -126,8 +133,9 @@ std::string WriteDataFile::item_to_csv(const Item &item) {
 
 
 bool WriteDataFile::write(const std::list<Item> &items) {
-    clear_file_context();
-    std::fstream file = get_file_object();
+    clear_file_context(); // 清空原有内容
+    std::fstream &file = get_file_object();
+    std::stringstream buffer; // 内存缓冲提升写入效率
 
     if (!file.is_open()) {
         return false;
@@ -135,17 +143,19 @@ bool WriteDataFile::write(const std::list<Item> &items) {
 
     for (auto &item: items) {
         std::string item_row = item_to_csv(item);
-        file << item_row << std::endl;
+        buffer << item_row << std::endl; // 写入商品行
 
+        // 写入关联品牌数据
         for (auto &brand: item.brand_list) {
             std::string brand_row = brand_to_csv(brand);
-            file << brand_row << std::endl;
+            buffer << brand_row << std::endl;
         }
 
-        file << std::endl;
+        buffer << std::endl; // 商品数据块分隔
     }
 
-    reduction();
+    file << buffer.rdbuf(); // 批量写入文件
+    reduction(); // 重置文件指针
     return true;
 }
 
@@ -224,7 +234,7 @@ Item ReadDataFile::parse_item_line(const std::string &line) {
 
 std::list<Item> ReadDataFile::read() {
     std::list<Item> items;
-    std::fstream file = get_file_object();
+    std::fstream &file = get_file_object();
 
     if (!file.is_open()) {
         return items;
@@ -265,7 +275,7 @@ std::list<Item> ReadDataFile::read() {
 
 
 bool OperationFile::append(const std::string &line) {
-    std::fstream file = get_file_object();
+    std::fstream &file = get_file_object();
     if (!file.is_open()) {
         return false;
     }
@@ -283,7 +293,7 @@ bool OperationFile::append(const std::string &line) {
 
 
 std::string OperationFile::pop() {
-    std::fstream file = get_file_object();
+    std::fstream &file = get_file_object();
     if (!file.is_open()) {
         return "FOE";
     }
@@ -296,26 +306,26 @@ std::string OperationFile::pop() {
     }
 
     if (lines.empty()) {
-        return "FIE";
+        return "FIE"; // 空文件标识
     }
 
     std::string last = lines.back();
     lines.pop_back();
 
-    clear_file_context();
-    std::fstream newFile = get_file_object();
+    clear_file_context(); // 清空文件后重新写入剩余内容
+    std::fstream &newFile = get_file_object();
     for (const auto &line: lines) {
         newFile << line << std::endl;
     }
 
     reduction();
-    return last;
+    return last; // 返回被删除的最后一条记录
 }
 
 
 std::list<std::string> OperationFile::clear() {
     std::list<std::string> lines;
-    std::fstream file = get_file_object();
+    std::fstream &file = get_file_object();
 
     if (!file.is_open()) {
         lines.emplace_back("FOE");
