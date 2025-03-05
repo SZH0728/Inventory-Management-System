@@ -39,9 +39,12 @@ protected:
     bool set_file_path(std::string new_file_path);
 
     /**
-     * @brief 清空文件内容
-     * @note 会立即清空文件所有内容
-     */
+   * @brief 重置文件流状态
+   * @details 执行以下清理操作：
+   * 1. 清除文件流的错误状态标志
+   * 2. 重置读写位置到文件起始位置
+   * @note 适用于需要重新从头读写文件的场景，需确保文件已通过open_file_object()成功打开
+   */
     void clear_file_context();
 
     void reduction();
@@ -73,7 +76,7 @@ public:
  * @class WriteDataFile
  * @brief CSV数据写入操作类
  */
-class WriteDataFile: virtual public BaseFile {
+class WriteDataFile : virtual public BaseFile {
 private:
     /**
      * @brief 转义CSV字段特殊字符
@@ -83,14 +86,14 @@ private:
      * - 包含逗号、换行符、双引号时添加外围双引号
      * - 内部双引号转换为两个连续双引号
      */
-    static std::string escape_csv_field(const std::string& field);
+    static std::string escape_csv_field(const std::string &field);
 
     /**
      * @brief 序列化Brand对象为CSV行
      * @param brand 品牌数据对象
      * @return 格式为 "name,code,quantity,price"的CSV行
      */
-    static std::string brand_to_csv(const Brand& brand);
+    static std::string brand_to_csv(const Brand &brand);
 
     /**
      * @brief 序列化Item对象为CSV行
@@ -98,7 +101,7 @@ private:
      * @return 格式为"name,code,colour,quantity"的CSV行
      * @note 关联的Brand数据会作为后续行单独写入
      */
-    static std::string item_to_csv(const Item& item);
+    static std::string item_to_csv(const Item &item);
 
 public:
     using BaseFile::BaseFile;
@@ -112,7 +115,7 @@ public:
      * 2. 按层次写入Item及其关联的Brand数据
      * 3. 每个Item后跟其brand_list中的所有Brand记录
      */
-    bool write(const std::list<Item>& items);
+    bool write(const std::list<Item> &items);
 };
 
 
@@ -120,28 +123,28 @@ public:
  * @class ReadDataFile
  * @brief CSV数据读取操作类
  */
-class ReadDataFile: virtual public BaseFile {
+class ReadDataFile : virtual public BaseFile {
 private:
     /**
      * @brief 反转义CSV字段
      * @param field 转义后的CSV字段
      * @return 原始字段内容
      */
-    static std::string unescape_csv_field(const std::string& field);
+    static std::string unescape_csv_field(const std::string &field);
 
     /**
      * @brief 解析品牌CSV行
      * @param line CSV格式字符串
      * @return 解析后的Brand对象
      */
-    static Brand parse_brand_line(const std::string& line);
+    static Brand parse_brand_line(const std::string &line);
 
     /**
      * @brief 解析商品CSV行
      * @param line CSV格式字符串
      * @return 解析后的Item对象
      */
-    static Item parse_item_line(const std::string& line);
+    static Item parse_item_line(const std::string &line);
 
 public:
     using BaseFile::BaseFile;
@@ -161,17 +164,18 @@ public:
  * @class DataFile
  * @brief 数据文件综合操作类
  */
-class DataFile: public ReadDataFile, public WriteDataFile {
+class DataFile : public ReadDataFile, public WriteDataFile {
 public:
     /**
      * @brief 构造数据文件对象
      * @param file_path 数据文件路径
      * @note 同时初始化读写功能的基类组件
      */
-    explicit DataFile(const std::string& file_path)
+    explicit DataFile(const std::string &file_path)
         : BaseFile(file_path),
           ReadDataFile(file_path),
-          WriteDataFile(file_path) {}
+          WriteDataFile(file_path) {
+    }
 };
 
 
@@ -179,7 +183,7 @@ public:
  * @class OperationFile
  * @brief 操作日志文件管理类
  */
-class OperationFile: public BaseFile {
+class OperationFile : public BaseFile {
 public:
     using BaseFile::BaseFile;
 
