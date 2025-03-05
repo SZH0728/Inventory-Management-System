@@ -8,6 +8,11 @@
 #ifndef UI_H
 #define UI_H
 
+#ifdef TEST_MODE
+#define private public
+#define protected public
+#endif
+
 #include <vector>
 #include <string>
 
