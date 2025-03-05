@@ -20,6 +20,10 @@ struct Brand {
     int code; ///< 品牌编码
     int quantity; ///< 当前库存数量
     float price; ///< 单品价格
+
+    bool operator==(const Brand& other) const {
+        return code == other.code && name == other.name && quantity == other.quantity && price == other.price;
+    }
 };
 
 
@@ -34,6 +38,11 @@ struct Item {
     int quantity; ///< 商品总库存
     std::list<Brand> brand_list; ///< 关联品牌列表（最大10个）
     int brand_number; ///< 当前关联品牌数量
+
+    bool operator==(const Item& other) const {
+        return code == other.code && name == other.name && colour == other.colour && quantity == other.quantity &&
+            brand_list == other.brand_list && brand_number == other.brand_number;
+    }
 };
 
 

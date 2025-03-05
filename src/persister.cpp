@@ -33,6 +33,8 @@ bool Persist::close() {
 
 
 std::list<Item> Persist::select() {
+    flush();
+
     data_file.open_file_object();
     std::list<Item> result = data_file.read();
     data_file.close_file_object();
