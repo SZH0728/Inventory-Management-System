@@ -145,7 +145,7 @@ public:
  * @class OperationFile
  * @brief 操作日志文件管理类
  */
-class OperationFile : public BaseFile {
+class OperationFile final : public BaseFile {
 public:
     using BaseFile::BaseFile;
 

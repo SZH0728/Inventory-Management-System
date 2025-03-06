@@ -5,9 +5,10 @@
 
 
 Persist::Persist(const std::string &data_file_path, const std::string &operation_file_path,
-                 int max_row): data_file(data_file_path), operation_file(operation_file_path) {
+                 const int max_row): data_file(data_file_path), operation_file(operation_file_path) {
     max_log_row = max_row;
     operation_file.open_file_object(); // 启动时立即打开操作日志文件
+    flush();
 }
 
 
@@ -97,7 +98,7 @@ int Persist::flush() {
     data_file.close_file_object();
 
     // 获取并清空操作日志
-    std::list<std::string> operations = operation_file.clear();
+    const std::list<std::string> operations = operation_file.clear();
 
     /*----- 操作日志重放逻辑 -----*/
     int operation_code = 0; // 0:无操作 1:插入 2:更新
@@ -151,7 +152,7 @@ int Persist::flush() {
 }
 
 
-void Persist::apply_pending_operation(std::list<Item> &items, int operation_code, Item &target) {
+void Persist::apply_pending_operation(std::list<Item> &items, const int operation_code, Item &target) {
     if (operation_code == 0) {
         return;
     }

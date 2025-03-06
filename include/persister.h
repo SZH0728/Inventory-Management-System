@@ -36,19 +36,19 @@ private:
     /**
     * 应用待处理操作（内部辅助方法）
     * @param items 当前数据集
-    * @param op_code 操作类型标记
+    * @param operation_code 操作类型标记
     * @param target 待操作数据项
     */
-    static void apply_pending_operation(std::list<Item> &items, int op_code, Item &target);
+    static void apply_pending_operation(std::list<Item> &items, int operation_code, Item &target);
 
 public:
     /**
      * @brief 构造函数
      * @param data_file_path 数据文件存储路径
      * @param operation_file_path 操作日志文件路径
-     * @param max_log_row 日志文件最大行数阈值（达到阈值自动触发flush）
+     * @param max_row 日志文件最大行数阈值（达到阈值自动触发flush）
      */
-    Persist(const std::string &data_file_path, const std::string &operation_file_path, int max_log_row);
+    Persist(const std::string &data_file_path, const std::string &operation_file_path, int max_row);
 
     /**
      * @brief 析构函数（自动关闭未关闭的文件资源）

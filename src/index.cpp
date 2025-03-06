@@ -2,14 +2,13 @@
 #include "../include/index.h"
 
 #include <codecvt>
-#include <iostream>
 #include <locale>
 
 
 // 字符串转宽字符串（UTF-8 -> wstring）
 std::wstring Index::str_to_w_str(const std::string &str) {
     using convert_typeX = std::codecvt_utf8<wchar_t>;
-    std::wstring_convert<convert_typeX, wchar_t> converterX;
+    std::wstring_convert<convert_typeX> converterX;
     return converterX.from_bytes(str);
 }
 
@@ -18,7 +17,7 @@ std::wstring Index::str_to_w_str(const std::string &str) {
 // 宽字符串转普通字符串（wstring -> UTF-8）
 std::string Index::w_str_to_str(const std::wstring &w_str) {
     using convert_typeX = std::codecvt_utf8<wchar_t>;
-    std::wstring_convert<convert_typeX, wchar_t> converterX;
+    std::wstring_convert<convert_typeX> converterX;
     return converterX.to_bytes(w_str);
 }
 

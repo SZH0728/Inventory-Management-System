@@ -3,7 +3,7 @@
 #include <iostream>
 
 
-Interface::Interface(std::string str, bool is_add_end_option) {
+Interface::Interface(std::string str, const bool is_add_end_option) {
     question = std::move(str);
     end_option = is_add_end_option;
 }
