@@ -108,8 +108,11 @@ std::vector<std::string> Index::del(const int code) {
     for (std::pair<std::wstring, int> kv: name_to_code) {
         if (kv.second == code) {
             result.push_back(w_str_to_str(kv.first));
-            name_to_code.erase(kv.first);
         }
+    }
+
+    for (const std::string& name : result) {
+        name_to_code.erase(str_to_w_str(name)); // 删除目标编码
     }
 
     return result;
