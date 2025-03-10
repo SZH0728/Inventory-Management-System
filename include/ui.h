@@ -8,8 +8,11 @@
 #ifndef UI_H
 #define UI_H
 
+#include "datatype.h"
+
 #include <vector>
 #include <string>
+#include <functional>
 
 /**
  * @struct Option
@@ -20,9 +23,77 @@
  */
 struct Option {
     std::string context;
-
-    int (*function_pointer)();
+    std::function<int()> function_pointer;
 };
+
+
+namespace ui {
+    /**
+    * @brief 获取并验证整数输入
+    * @return 验证通过的整数值
+    * @details 循环验证直到输入合法，支持负数
+    */
+    int input_int(const std::string &question);
+
+    /**
+     * @brief 获取并验证浮点数输入
+     * @return 验证通过的double值
+     * @details 支持科学计数法（如3.14e-2）
+     */
+    double input_double(const std::string &question);
+
+    /**
+     * @brief 获取并验证非空字符串
+     * @return 去除首尾空格后的有效字符串
+     * @details 至少包含一个非空格字符
+     */
+    std::string input_string(const std::string &question);
+
+    /**
+     * @brief 从用户输入获取品牌信息
+     * @return 包含完整品牌信息的Brand对象
+     * @details 交互式收集品牌名称、编码、库存量和价格，进行非空和范围验证
+     */
+    Brand get_brand();
+
+    /**
+     * @brief 从用户输入获取商品信息
+     * @return 包含完整商品信息的Item对象
+     * @details 收集商品名称、编码、颜色，并支持添加多个关联品牌（最多MAX_NUMBER个）
+     */
+    Item get_item();
+
+    /**
+     * @brief 显示品牌详细信息
+     * @param brand 要展示的Brand对象
+     * @details 格式化输出品牌名称、编码、库存量和价格信息
+     */
+    void show_brand(const Brand &brand);
+
+    /**
+     * @brief 显示商品及其关联品牌信息
+     * @param item 要展示的Item对象
+     * @details 输出商品基础信息并遍历展示所有关联品牌，显示库存总量
+     */
+    void show_item(const Item &item);
+
+    /**
+     * @brief 更新品牌库存信息
+     * @param brand 待更新的Brand对象
+     * @return 更新后的Brand对象
+     * @details 显示当前信息后，仅允许修改库存数量（需非负验证）
+     */
+    Brand update_brand(Brand brand);
+
+    /**
+     * @brief 更新商品关联品牌信息
+     * @param item 待更新的Item对象
+     * @return 更新后的Item对象
+     * @details 遍历所有关联品牌进行更新，并重新计算商品总库存量
+     */
+    Item update_item(Item item);
+}
+
 
 /**
  * @class Interface
