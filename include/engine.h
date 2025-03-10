@@ -1,6 +1,7 @@
-﻿//
-// Created by User on 25-3-6.
-//
+﻿/**
+ * @file engine.h
+ * @brief 数据引擎核心类与查询构建器定义头文件
+ */
 
 #ifndef ENGINE_H
 #define ENGINE_H

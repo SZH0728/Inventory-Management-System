@@ -1,4 +1,9 @@
-﻿#ifndef INDEX_H
+﻿/**
+ * @file index.h
+ * @brief 索引管理类定义头文件（支持模糊匹配与编码转换）
+ */
+
+#ifndef INDEX_H
 #define INDEX_H
 
 #include <string>

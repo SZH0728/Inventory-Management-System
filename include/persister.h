@@ -1,4 +1,9 @@
-﻿#ifndef PERSISTER_H
+﻿/**
+ * @file index.h
+ * @brief 索引管理及模糊查询支持头文件
+ */
+
+#ifndef PERSISTER_H
 #define PERSISTER_H
 
 #include "datatype.h"
