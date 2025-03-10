@@ -21,6 +21,7 @@ int BaseMenu::main() const {
 // 初始化查询选项：1.按名称查询 2.按代码查询
 QueryItemMenu::QueryItemMenu(Engine *engine): BaseMenu(engine, "查询菜单: ", true) {
     menu.append(Option{"按商品品种名称查询", [this]{ return this->query_by_name(); }});
+    menu.append(Option{"按商品品种名称模糊查询", [this]{ return this->query_by_name_like(); }});
     menu.append(Option{"按商品品种代码查询", [this]{ return this->query_by_code(); }});
 }
 
@@ -55,6 +56,24 @@ int QueryItemMenu::query_by_name(std::string name) const {
     }
 
     const std::vector<Item> items = engine->select_by_name(name);
+    if (items.empty()) {
+        std::cout << "没有找到该商品" << std::endl;
+        return 0;
+    }
+
+    for (const Item &item : items) {
+        ui::show_item(item);
+    }
+    return -1;
+}
+
+
+int QueryItemMenu::query_by_name_like(std::string name) const {
+    if (name.empty()) {
+        name = ui::input_string("请输入商品品种名称:");
+    }
+
+    const std::vector<Item> items = engine->select_by_name_like(name);
     if (items.empty()) {
         std::cout << "没有找到该商品" << std::endl;
         return 0;
@@ -119,6 +138,7 @@ int DeleteItemMenu::delete_by_name(std::string name) const {
 
 ExportItemMenu::ExportItemMenu(Engine *engine): BaseMenu(engine, "商品出库: ", true) {
     menu.append(Option{"按商品品种名称查询商品出库", [this]{ return this->export_by_name(); }});
+    menu.append(Option{"按商品品种名称模糊查询商品出库", [this]{ return this->export_by_name_like(); }});
     menu.append(Option{"按商品品种代码查询商品出库", [this]{ return this->export_by_code(); }});
 }
 
@@ -140,7 +160,29 @@ int ExportItemMenu::export_by_code(int code) {
     }
 
     for (const Item& old_item : item) {
-        Item new_item = ui::update_item(old_item);
+        Item new_item;
+        while (true) {
+            new_item = ui::update_item(old_item);
+
+            bool valid = true;
+            for (const Brand& old_brand : old_item.brand_list) {
+                // 查找对应新品牌
+                auto it = std::find_if(new_item.brand_list.begin(), new_item.brand_list.end(),
+                    [&](const Brand& b){ return b.code == old_brand.code; });
+
+                // 校验条件
+                if (it == new_item.brand_list.end() || it->quantity > old_brand.quantity) {  // 新数量不能大于旧数量
+                    std::cout << "错误：品牌" << old_brand.name
+                              << "库存不能增加！请重新输入" << std::endl;
+                    valid = false;
+                    break;
+                }
+            }
+
+            if (valid) {
+                break;
+            }
+        }
         change.emplace_back(old_item, new_item);
     }
 
@@ -162,9 +204,32 @@ int ExportItemMenu::export_by_name(std::string name) {
         std::cout << "没有找到该商品" << std::endl;
         return 0;
     }
-    for (const Item &item : items) {
-        Item new_item = ui::update_item(item);
-        change.emplace_back(item, new_item);
+    for (const Item &old_item : items) {
+        Item new_item;
+        while (true) {
+            new_item = ui::update_item(old_item);
+
+            bool valid = true;
+            for (const Brand& old_brand : old_item.brand_list) {
+                // 查找对应新品牌
+                auto it = std::find_if(new_item.brand_list.begin(), new_item.brand_list.end(),
+                    [&](const Brand& b){ return b.code == old_brand.code; });
+
+                // 校验条件
+                if (it == new_item.brand_list.end() || it->quantity > old_brand.quantity) {  // 新数量不能大于旧数量
+                    std::cout << "错误：品牌" << old_brand.name
+                              << "库存不能增加！请重新输入" << std::endl;
+                    valid = false;
+                    break;
+                }
+            }
+
+            if (valid) {
+                break;
+            }
+        }
+
+        change.emplace_back(old_item, new_item);
     }
 
     for (const std::pair<Item, Item> &pair : change) {
@@ -173,6 +238,54 @@ int ExportItemMenu::export_by_name(std::string name) {
 
     return -1;
 }
+
+
+int ExportItemMenu::export_by_name_like(std::string name) {
+    if (name.empty()) {
+        name = ui::input_string("请输入商品品种名称:");
+    }
+
+    const std::vector<Item> items = engine->select_by_name_like(name);
+    if (items.empty()) {
+        std::cout << "没有找到该商品" << std::endl;
+        return 0;
+    }
+
+    for (const Item &old_item : items) {
+        Item new_item;
+        while (true) {
+            new_item = ui::update_item(old_item);
+
+            bool valid = true;
+            for (const Brand& old_brand : old_item.brand_list) {
+                // 查找对应新品牌
+                auto it = std::find_if(new_item.brand_list.begin(), new_item.brand_list.end(),
+                    [&](const Brand& b){ return b.code == old_brand.code; });
+
+                // 校验条件
+                if (it == new_item.brand_list.end() || it->quantity > old_brand.quantity) {  // 新数量不能大于旧数量
+                    std::cout << "错误：品牌" << old_brand.name
+                              << "库存不能增加！请重新输入" << std::endl;
+                    valid = false;
+                    break;
+                }
+            }
+
+            if (valid) {
+                break;
+            }
+        }
+
+        change.emplace_back(old_item, new_item);
+    }
+
+    for (const std::pair<Item, Item> &pair : change) {
+        engine->update(pair.second);
+    }
+
+    return -1;
+}
+
 
 
 // 生成出货报表关键技术点：
@@ -234,6 +347,7 @@ std::string ExportItemMenu::generate() const {
 
 ImportItemMenu::ImportItemMenu(Engine *engine): BaseMenu(engine, "商品进库: ", true) {
     menu.append(Option{"按商品品种名称查询商品进库", [this]{ return this->import_by_name(); }});
+    menu.append(Option{"按商品品种名称模糊查询商品进库", [this]{ return this->import_by_name_like(); }});
     menu.append(Option{"按商品品种查询商品代码进库", [this]{ return this->import_by_code(); }});
 }
 
@@ -243,14 +357,37 @@ int ImportItemMenu::import_by_code(int code) {
         code = ui::input_int("请输入商品品种代码:");
     }
 
-    const std::vector<Item> item = engine->select_by_code(code);
-    if (item.empty()) {
+    const std::vector<Item> items = engine->select_by_code(code);
+    if (items.empty()) {
         std::cout << "没有找到该商品" << std::endl;
         return 0;
     }
 
-    for (const Item& old_item : item) {
-        Item new_item = ui::update_item(old_item);
+    for (const Item& old_item : items) {
+        Item new_item;
+        while (true) {
+            new_item = ui::update_item(old_item);
+
+            bool valid = true;
+            for (const Brand& old_brand : old_item.brand_list) {
+                // 查找对应新品牌
+                auto it = std::find_if(new_item.brand_list.begin(), new_item.brand_list.end(),
+                    [&](const Brand& b){ return b.code == old_brand.code; });
+
+                // 校验条件
+                if (it == new_item.brand_list.end() || it->quantity < old_brand.quantity) {  // 新数量不能小于旧数量
+                    std::cout << "错误：品牌" << old_brand.name
+                              << "库存不能增加！请重新输入" << std::endl;
+                    valid = false;
+                    break;
+                }
+            }
+
+            if (valid) {
+                break;
+            }
+        }
+
         change.emplace_back(old_item, new_item);
     }
 
@@ -273,9 +410,31 @@ int ImportItemMenu::import_by_name(std::string name) {
         return 0;
     }
 
-    for (const Item &item : items) {
-        Item new_item = ui::update_item(item);
-        change.emplace_back(item, new_item);
+    for (const Item &old_item : items) {
+        Item new_item;
+        while (true) {
+            new_item = ui::update_item(old_item);
+
+            bool valid = true;
+            for (const Brand& old_brand : old_item.brand_list) {
+                // 查找对应新品牌
+                auto it = std::find_if(new_item.brand_list.begin(), new_item.brand_list.end(),
+                    [&](const Brand& b){ return b.code == old_brand.code; });
+
+                // 校验条件
+                if (it == new_item.brand_list.end() || it->quantity < old_brand.quantity) {  // 新数量不能小于旧数量
+                    std::cout << "错误：品牌" << old_brand.name
+                              << "库存不能增加！请重新输入" << std::endl;
+                    valid = false;
+                    break;
+                }
+            }
+
+            if (valid) {
+                break;
+            }
+        }
+        change.emplace_back(old_item, new_item);
     }
 
     for (const std::pair<Item, Item> &pair : change) {
@@ -284,6 +443,48 @@ int ImportItemMenu::import_by_name(std::string name) {
 
     return -1;
 }
+
+
+int ImportItemMenu::import_by_name_like(std::string name) {
+    if (name.empty()) {
+        name = ui::input_string("请输入商品品种名称:");
+    }
+
+    for (const Item &old_item : engine->select_by_name_like(name)) {
+        Item new_item;
+        while (true) {
+            new_item = ui::update_item(old_item);
+
+            bool valid = true;
+            for (const Brand& old_brand : old_item.brand_list) {
+                // 查找对应新品牌
+                auto it = std::find_if(new_item.brand_list.begin(), new_item.brand_list.end(),
+                    [&](const Brand& b){ return b.code == old_brand.code; });
+
+                // 校验条件
+                if (it == new_item.brand_list.end() || it->quantity < old_brand.quantity) {  // 新数量不能小于旧数量
+                    std::cout << "错误：品牌" << old_brand.name
+                              << "库存不能增加！请重新输入" << std::endl;
+                    valid = false;
+                    break;
+                }
+            }
+
+            if (valid) {
+                break;
+            }
+        }
+
+        change.emplace_back(old_item, new_item);
+    }
+
+    for (const std::pair<Item, Item> &pair : change) {
+        engine->update(pair.second);
+    }
+
+    return -1;
+}
+
 
 
 std::string ImportItemMenu::generate() const{

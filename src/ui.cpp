@@ -166,19 +166,23 @@ namespace ui{
 
 
     // 显示单个商品品种及其关联品牌
-    void show_item(const Item& item) {
+    void show_item(const Item& item, const bool show_brand) {
         std::cout << "商品名称: " << item.name << std::endl
                   << "商品编号: " << item.code << std::endl
                   << "商品颜色: " << item.colour << std::endl
                   << "库存总量: " << item.quantity << std::endl
                   << "关联品牌: ";
 
+        if (!show_brand) {
+            return;
+        }
+
         if (item.brand_list.empty()) {
             std::cout << "无品牌信息";
         } else {
             std::cout << std::endl;
             for (const Brand &brand : item.brand_list) {
-                show_brand(brand);
+                ui::show_brand(brand);
                 std::cout << std::endl;  // 品牌间换行分隔
             }
         }
@@ -191,6 +195,7 @@ namespace ui{
         std::cout << "=== 更新品牌信息 ===" << std::endl;
         std::cout << "当前品牌信息：" << std::endl;
         show_brand(brand);
+        std::cout << std::endl;
 
         do {
             brand.quantity = input_int("库存数量: ");

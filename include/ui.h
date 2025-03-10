@@ -73,9 +73,10 @@ namespace ui {
     /**
      * @brief 显示商品及其关联品牌信息
      * @param item 要展示的Item对象
+     * @param show_brand 是否显示关联品牌信息
      * @details 输出商品基础信息并遍历展示所有关联品牌，显示库存总量
      */
-    void show_item(const Item &item);
+    void show_item(const Item &item, bool show_brand = true);
 
     /**
      * @brief 更新品牌库存信息

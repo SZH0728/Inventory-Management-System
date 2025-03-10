@@ -62,6 +62,14 @@ public:
     int query_by_name(std::string name = std::string("")) const;
 
     /**
+     * @brief 按名称模糊查询商品
+     * @param name 商品名称（默认空字符串时触发输入）
+     * @return 操作状态码（-1保持菜单，0退出）
+     * @details 支持模糊匹配查询，显示匹配商品详细信息
+     */
+    int query_by_name_like(std::string name = std::string("")) const;
+
+    /**
     * @brief 按代码查询商品
     * @param code 商品代码（默认-1时触发输入）
     * @return 操作状态码（-1保持菜单，0退出）
@@ -130,6 +138,14 @@ public:
      */
     int export_by_name(std::string name = std::string(""));
 
+    /*
+     * @brief 按名称模糊进行出库操作
+     * @param name 商品名称（默认空字符串时触发输入）
+     * @return 操作状态码
+     * @details 支持模糊匹配出库，更新后自动计算库存总量
+     */
+    int export_by_name_like(std::string name = std::string(""));
+
     /**
      * @brief 按代码进行出库操作
      * @param code 商品代码（默认-1时触发输入）
@@ -173,6 +189,15 @@ public:
      *          计算新旧商品差异生成入库记录
      */
     int import_by_name(std::string name = std::string(""));
+
+    /**
+     * @brief 按名称模糊进行入库操作
+     * @param name 商品名称（默认空字符串时触发输入）
+     * @return 操作状态码
+     * @details 支持模糊匹配入库，自动更新品牌库存量
+     *          计算新旧商品差异生成入库记录
+     */
+    int import_by_name_like(std::string name = std::string(""));
 
     /**
      * @brief 按代码进行入库操作
