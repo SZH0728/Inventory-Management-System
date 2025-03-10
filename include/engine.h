@@ -22,9 +22,9 @@ class Engine;
  */
 class QueryBuilder {
 private:
-    Engine *engine;                 ///< 关联的引擎实例指针
-    std::list<std::function<bool(const Item&)>> conditions; ///< 存储查询条件列表
-    int number;                     ///< 结果集最大数量限制
+    Engine *engine; ///< 关联的引擎实例指针
+    std::list<std::function<bool(const Item &)> > conditions; ///< 存储查询条件列表
+    int number; ///< 结果集最大数量限制
 
     /**
      * @brief 执行构建好的查询条件
@@ -44,7 +44,7 @@ public:
      * @param condition 接受Item对象并返回bool的lambda表达式
      * @return 当前QueryBuilder对象的引用（支持链式调用）
      */
-    QueryBuilder& where(std::function<bool(const Item&)> condition);
+    QueryBuilder &where(std::function<bool(const Item &)> condition);
 
     /// @brief 获取符合条件的第一条记录
     std::vector<Item> first();
@@ -67,10 +67,10 @@ public:
  */
 class Engine {
 private:
-    Persist persist;        ///< 持久化操作对象
-    LRUCache cache;         ///< 缓存管理对象
-    Index index;            ///< 索引管理对象
-    std::list<Item> items;  ///< 内存中维护的数据集合
+    Persist persist; ///< 持久化操作对象
+    LRUCache cache; ///< 缓存管理对象
+    Index index; ///< 索引管理对象
+    std::list<Item> items; ///< 内存中维护的数据集合
 
     /**
      * @brief 执行查询条件过滤
@@ -78,7 +78,7 @@ private:
      * @param number 最大返回数量
      * @return 过滤后的结果集合
      */
-    std::vector<Item> execute(std::list<std::function<bool(const Item&)>> conditions, int number);
+    std::vector<Item> execute(std::list<std::function<bool(const Item &)> > conditions, int number);
 
 public:
     /// @brief 声明友元类以允许访问私有成员
@@ -91,7 +91,7 @@ public:
      * @param operation_file_path 操作日志文件路径
      * @param data_file_path 数据文件路径
      */
-    Engine(int max_cache, int max_log, const std::string& operation_file_path, const std::string &data_file_path);
+    Engine(int max_cache, int max_log, const std::string &operation_file_path, const std::string &data_file_path);
 
     /**
      * @brief 插入新数据项
@@ -105,7 +105,7 @@ public:
      * @param item 要删除的Item对象
      * @return 被删除的Item副本
      */
-    Item del(const Item& item);
+    Item del(const Item &item);
 
     /**
      * @brief 通过code删除数据
@@ -136,14 +136,14 @@ public:
      * @param name 要查询的完整名称
      * @return 匹配的结果集合
      */
-    std::vector<Item> select_by_name(const std::string& name);
+    std::vector<Item> select_by_name(const std::string &name);
 
     /**
      * @brief 模糊匹配名称查询
      * @param name 要模糊匹配的名称片段
      * @return 匹配的结果集合
      */
-    std::vector<Item> select_by_name_like(const std::string& name);
+    std::vector<Item> select_by_name_like(const std::string &name);
 };
 
 #endif //ENGINE_H
