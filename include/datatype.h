@@ -19,7 +19,7 @@ struct Brand {
     std::string name; ///< 品牌名称（唯一标识）
     int code; ///< 品牌编码
     int quantity; ///< 当前库存数量
-    float price; ///< 单品价格
+    double price; ///< 单品价格
 
     bool operator==(const Brand& other) const {
         return code == other.code && name == other.name && quantity == other.quantity && price == other.price;
