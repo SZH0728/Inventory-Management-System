@@ -136,6 +136,83 @@ int DeleteItemMenu::delete_by_name(std::string name) const {
 }
 
 
+Item ItemImportExport::item_quantity_change(const Item& old_item, const bool greater) {
+    Item new_item;
+
+    while (true) {
+        new_item = ui::update_item(old_item);
+
+        bool valid = true;
+        for (const Brand& old_brand : old_item.brand_list) {
+            // 查找对应新品牌
+            auto it = std::find_if(new_item.brand_list.begin(), new_item.brand_list.end(),
+                [&](const Brand& b){ return b.code == old_brand.code; });
+
+            bool condition;
+            if (greater) {
+                condition = it->quantity < old_brand.quantity;
+            }else {
+                condition = it->quantity > old_brand.quantity;
+            }
+
+            // 校验条件
+            if (it == new_item.brand_list.end() || condition) {  // 新数量不能小于旧数量
+                std::cout << "错误：品牌" << old_brand.name;
+
+                if (condition) {
+                    std::cout << "库存不能增加！请重新输入" << std::endl;
+                }else {
+                    std::cout << "库存不能减少！请重新输入" << std::endl;
+                }
+
+                valid = false;
+                break;
+            }
+        }
+
+        if (valid) {
+            break;
+        }
+    }
+
+    return new_item;
+}
+
+
+std::string ItemImportExport::generate_header(bool is_import) {
+    std::stringstream report;
+    const auto now = std::chrono::system_clock::now();
+    const std::time_t time = std::chrono::system_clock::to_time_t(now);
+
+    // 安全转换时间
+    std::tm tm{};
+#ifdef _WIN32
+    localtime_s(&tm, &time);  // Windows 安全版本
+#else
+    localtime_r(&time, &tm);  // Linux/macOS 安全版本
+#endif
+
+    if (is_import) {
+        report << "======== 进货统计表 ========" << std::endl;
+    }else {
+        report << "======== 出货统计表 ========" << std::endl;
+    }
+
+    // 使用 std::put_time 格式化输出
+    report << "生成时间: " << std::put_time(&tm, "%Y-%m-%d %H:%M:%S") << std::endl << std::endl;
+
+    // 表头
+    if (is_import) {
+        report << "|  商品品种  | 品牌名称  |  进货数量  |  单价    | 小计     |" << std::endl;
+    }else {
+        report << "|  商品品种  | 品牌名称  |  出货数量  |  单价    | 小计     |" << std::endl;
+    }
+    report << "|----------|----------|----------|---------|---------|" << std::endl;
+
+    return report.str();
+}
+
+
 ExportItemMenu::ExportItemMenu(Engine *engine): BaseMenu(engine, "商品出库: ", true) {
     menu.append(Option{"按商品品种名称查询商品出库", [this]{ return this->export_by_name(); }});
     menu.append(Option{"按商品品种名称模糊查询商品出库", [this]{ return this->export_by_name_like(); }});
@@ -160,29 +237,7 @@ int ExportItemMenu::export_by_code(int code) {
     }
 
     for (const Item& old_item : item) {
-        Item new_item;
-        while (true) {
-            new_item = ui::update_item(old_item);
-
-            bool valid = true;
-            for (const Brand& old_brand : old_item.brand_list) {
-                // 查找对应新品牌
-                auto it = std::find_if(new_item.brand_list.begin(), new_item.brand_list.end(),
-                    [&](const Brand& b){ return b.code == old_brand.code; });
-
-                // 校验条件
-                if (it == new_item.brand_list.end() || it->quantity > old_brand.quantity) {  // 新数量不能大于旧数量
-                    std::cout << "错误：品牌" << old_brand.name
-                              << "库存不能增加！请重新输入" << std::endl;
-                    valid = false;
-                    break;
-                }
-            }
-
-            if (valid) {
-                break;
-            }
-        }
+        Item new_item = item_quantity_change(old_item, false);
         change.emplace_back(old_item, new_item);
     }
 
@@ -205,30 +260,7 @@ int ExportItemMenu::export_by_name(std::string name) {
         return 0;
     }
     for (const Item &old_item : items) {
-        Item new_item;
-        while (true) {
-            new_item = ui::update_item(old_item);
-
-            bool valid = true;
-            for (const Brand& old_brand : old_item.brand_list) {
-                // 查找对应新品牌
-                auto it = std::find_if(new_item.brand_list.begin(), new_item.brand_list.end(),
-                    [&](const Brand& b){ return b.code == old_brand.code; });
-
-                // 校验条件
-                if (it == new_item.brand_list.end() || it->quantity > old_brand.quantity) {  // 新数量不能大于旧数量
-                    std::cout << "错误：品牌" << old_brand.name
-                              << "库存不能增加！请重新输入" << std::endl;
-                    valid = false;
-                    break;
-                }
-            }
-
-            if (valid) {
-                break;
-            }
-        }
-
+        Item new_item = item_quantity_change(old_item, false);
         change.emplace_back(old_item, new_item);
     }
 
@@ -252,30 +284,7 @@ int ExportItemMenu::export_by_name_like(std::string name) {
     }
 
     for (const Item &old_item : items) {
-        Item new_item;
-        while (true) {
-            new_item = ui::update_item(old_item);
-
-            bool valid = true;
-            for (const Brand& old_brand : old_item.brand_list) {
-                // 查找对应新品牌
-                auto it = std::find_if(new_item.brand_list.begin(), new_item.brand_list.end(),
-                    [&](const Brand& b){ return b.code == old_brand.code; });
-
-                // 校验条件
-                if (it == new_item.brand_list.end() || it->quantity > old_brand.quantity) {  // 新数量不能大于旧数量
-                    std::cout << "错误：品牌" << old_brand.name
-                              << "库存不能增加！请重新输入" << std::endl;
-                    valid = false;
-                    break;
-                }
-            }
-
-            if (valid) {
-                break;
-            }
-        }
-
+        Item new_item = item_quantity_change(old_item, false);
         change.emplace_back(old_item, new_item);
     }
 
@@ -295,24 +304,7 @@ int ExportItemMenu::export_by_name_like(std::string name) {
 // 4. 只处理出货量>0的记录
 std::string ExportItemMenu::generate() const {
     std::stringstream report;
-    const auto now = std::chrono::system_clock::now();
-    const std::time_t time = std::chrono::system_clock::to_time_t(now);
-
-    // 安全转换时间
-    std::tm tm{};
-#ifdef _WIN32
-    localtime_s(&tm, &time);  // Windows 安全版本
-#else
-    localtime_r(&time, &tm);  // Linux/macOS 安全版本
-#endif
-
-    // 使用 std::put_time 格式化输出
-    report << "======== 出货统计表 ========" << std::endl
-           << "生成时间: " << std::put_time(&tm, "%Y-%m-%d %H:%M:%S") << std::endl << std::endl;
-
-    // 表头
-    report << "|  商品品种  | 品牌名称  |  出货数量  |  单价    | 小计     |" << std::endl
-           << "|----------|----------|----------|---------|---------|" << std::endl;
+    report << generate_header(false);
 
     double total = 0.0;
     for (const std::pair<Item, Item> &pair : change) {
@@ -326,9 +318,9 @@ std::string ExportItemMenu::generate() const {
                 [&old_brand](const Brand &b) { return b.code == old_brand.code;});
 
             if (it != new_item.brand_list.end()) {
-                int delta = old_brand.quantity - it->quantity;
+                const int delta = old_brand.quantity - it->quantity;
                 if (delta > 0) { // 只显示出货记录
-                    double subtotal = delta * old_brand.price;
+                    const double subtotal = delta * old_brand.price;
                     report << "| " << old_item.name << "(" << old_item.code << ")"
                            << " | " << std::setw(8) << old_brand.name
                            << " | " << std::setw(8) << delta
@@ -364,30 +356,7 @@ int ImportItemMenu::import_by_code(int code) {
     }
 
     for (const Item& old_item : items) {
-        Item new_item;
-        while (true) {
-            new_item = ui::update_item(old_item);
-
-            bool valid = true;
-            for (const Brand& old_brand : old_item.brand_list) {
-                // 查找对应新品牌
-                auto it = std::find_if(new_item.brand_list.begin(), new_item.brand_list.end(),
-                    [&](const Brand& b){ return b.code == old_brand.code; });
-
-                // 校验条件
-                if (it == new_item.brand_list.end() || it->quantity < old_brand.quantity) {  // 新数量不能小于旧数量
-                    std::cout << "错误：品牌" << old_brand.name
-                              << "库存不能增加！请重新输入" << std::endl;
-                    valid = false;
-                    break;
-                }
-            }
-
-            if (valid) {
-                break;
-            }
-        }
-
+        Item new_item = item_quantity_change(old_item, true);
         change.emplace_back(old_item, new_item);
     }
 
@@ -411,29 +380,7 @@ int ImportItemMenu::import_by_name(std::string name) {
     }
 
     for (const Item &old_item : items) {
-        Item new_item;
-        while (true) {
-            new_item = ui::update_item(old_item);
-
-            bool valid = true;
-            for (const Brand& old_brand : old_item.brand_list) {
-                // 查找对应新品牌
-                auto it = std::find_if(new_item.brand_list.begin(), new_item.brand_list.end(),
-                    [&](const Brand& b){ return b.code == old_brand.code; });
-
-                // 校验条件
-                if (it == new_item.brand_list.end() || it->quantity < old_brand.quantity) {  // 新数量不能小于旧数量
-                    std::cout << "错误：品牌" << old_brand.name
-                              << "库存不能增加！请重新输入" << std::endl;
-                    valid = false;
-                    break;
-                }
-            }
-
-            if (valid) {
-                break;
-            }
-        }
+        Item new_item = item_quantity_change(old_item, true);
         change.emplace_back(old_item, new_item);
     }
 
@@ -451,30 +398,7 @@ int ImportItemMenu::import_by_name_like(std::string name) {
     }
 
     for (const Item &old_item : engine->select_by_name_like(name)) {
-        Item new_item;
-        while (true) {
-            new_item = ui::update_item(old_item);
-
-            bool valid = true;
-            for (const Brand& old_brand : old_item.brand_list) {
-                // 查找对应新品牌
-                auto it = std::find_if(new_item.brand_list.begin(), new_item.brand_list.end(),
-                    [&](const Brand& b){ return b.code == old_brand.code; });
-
-                // 校验条件
-                if (it == new_item.brand_list.end() || it->quantity < old_brand.quantity) {  // 新数量不能小于旧数量
-                    std::cout << "错误：品牌" << old_brand.name
-                              << "库存不能增加！请重新输入" << std::endl;
-                    valid = false;
-                    break;
-                }
-            }
-
-            if (valid) {
-                break;
-            }
-        }
-
+        Item new_item = item_quantity_change(old_item, true);
         change.emplace_back(old_item, new_item);
     }
 
@@ -489,22 +413,7 @@ int ImportItemMenu::import_by_name_like(std::string name) {
 
 std::string ImportItemMenu::generate() const{
     std::stringstream report;
-    const auto now = std::chrono::system_clock::now();
-    const std::time_t time = std::chrono::system_clock::to_time_t(now);
-
-    // 安全转换时间
-    std::tm tm{};
-#ifdef _WIN32
-    localtime_s(&tm, &time);  // Windows 安全版本
-#else
-    localtime_r(&time, &tm);  // Linux/macOS 安全版本
-#endif
-    report << "======== 进货统计表 ========" << std::endl
-           << "生成时间: " << std::put_time(&tm, "%Y-%m-%d %H:%M:%S") << std::endl << std::endl;
-
-    // 表头
-    report << "|  商品品种  | 品牌名称  |  进货数量  | 单价     | 小计     |" << std::endl
-           << "|----------|----------|----------|---------|---------|" << std::endl;
+    report << generate_header(true);
 
     for (const std::pair<Item, Item> &pair : change) {
         Item old_item = pair.first;

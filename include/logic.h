@@ -115,12 +115,41 @@ public:
 
 
 /**
+ * @class ItemImportExport
+ * @brief 商品出入库操作工具类
+ *
+ * 提供通用方法，供出入库菜单继承使用
+ */
+class ItemImportExport {
+protected:
+    /**
+     * @brief 调整商品库存数量
+     * @param old_item 原始商品对象
+     * @param greater 数量调整方向（true表示增加库存，false表示减少）
+     * @return 调整后的新商品对象
+     * @details 根据greater参数方向创建新商品对象，增加或减少库存数量
+     *          库存调整量通过UI交互获取，保持原商品其他属性不变
+     */
+    static Item item_quantity_change(const Item& old_item, bool greater);
+
+    /**
+     * @brief 生成报表头部信息
+     * @param is_import 报表类型标识（true=入库报表，false=出库报表）
+     * @return 格式化报表头部字符串
+     * @details 包含操作类型（入库/出库）、系统时间、操作人员等信息
+     *          使用跨平台时间函数保证兼容性
+     */
+    static std::string generate_header(bool is_import);
+};
+
+
+/**
  * @class ExportItemMenu
  * @brief 商品出库菜单
  *
  * 处理商品出库操作，记录变更并生成出货统计报表
  */
-class ExportItemMenu : public BaseMenu {
+class ExportItemMenu : public BaseMenu, public ItemImportExport{
 private:
     std::list<std::pair<Item, Item> > change; ///< 出库变更记录列表（旧商品，新商品）
 public:
@@ -169,7 +198,7 @@ public:
  *
  * 处理商品入库操作，记录变更并生成进货统计报表
  */
-class ImportItemMenu : public BaseMenu {
+class ImportItemMenu : public BaseMenu, public ItemImportExport{
 private:
     std::list<std::pair<Item, Item> > change; ///< 入库变更记录列表（旧商品，新商品对）
 
