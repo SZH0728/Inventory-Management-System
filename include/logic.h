@@ -19,7 +19,7 @@
  */
 class BaseMenu {
 protected:
-    std::shared_ptr<Engine> engine;
+    Engine *engine;
     Interface menu;
 
 public:
