@@ -3,8 +3,8 @@
  * @brief 文件存储模块，定义文件操作相关类
  */
 
-#ifndef FILE_H
-#define FILE_H
+#ifndef STORAGE_H
+#define STORAGE_H
 
 #include "../include/datatype.h"
 
@@ -176,4 +176,4 @@ public:
  int size();
 };
 
-#endif //FILE_H
+#endif //STORAGE_H

@@ -114,7 +114,13 @@ bool WriteDataFile::write(const std::list<Item> &items) {
         buffer << std::endl; // 商品数据块分隔
     }
 
-    file << buffer.rdbuf(); // 批量写入文件
+    try {
+        file << buffer.rdbuf();
+    } catch (const std::ios_base::failure& e) {
+        std::cerr << "写入失败: " << e.what();
+        return false;
+    }
+
     reduction(); // 重置文件指针
     return true;
 }

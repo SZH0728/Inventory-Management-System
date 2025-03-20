@@ -19,7 +19,7 @@
  */
 class BaseMenu {
 protected:
-    Engine *engine;
+    std::shared_ptr<Engine> engine;
     Interface menu;
 
 public:
@@ -121,7 +121,7 @@ public:
  * 提供通用方法，供出入库菜单继承使用
  */
 class ItemImportExport {
-protected:
+public:
     /**
      * @brief 调整商品库存数量
      * @param old_item 原始商品对象
@@ -149,7 +149,7 @@ protected:
  *
  * 处理商品出库操作，记录变更并生成出货统计报表
  */
-class ExportItemMenu : public BaseMenu, public ItemImportExport{
+class ExportItemMenu : public BaseMenu{
 private:
     std::list<std::pair<Item, Item> > change; ///< 出库变更记录列表（旧商品，新商品）
 public:
@@ -198,7 +198,7 @@ public:
  *
  * 处理商品入库操作，记录变更并生成进货统计报表
  */
-class ImportItemMenu : public BaseMenu, public ItemImportExport{
+class ImportItemMenu : public BaseMenu{
 private:
     std::list<std::pair<Item, Item> > change; ///< 入库变更记录列表（旧商品，新商品对）
 

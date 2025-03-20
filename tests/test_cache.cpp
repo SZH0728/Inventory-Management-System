@@ -41,6 +41,9 @@ TEST(LRUCacheTest, UpdateExistingItem) {
     Item selected = cache.select(1);
     EXPECT_EQ(selected.name, "newName");
     EXPECT_EQ(selected.colour, "blue");
+
+    selected = cache.select("newName");
+    EXPECT_EQ(selected.colour, "blue");
 }
 
 TEST(LRUCacheTest, DeleteOperations) {

@@ -74,6 +74,9 @@ void LRUCache::insert(const Item &item) {
         const auto iter = code_to_item.at(item.code);
         *iter = item;  // 直接修改链表节点值
         cache.splice(cache.begin(), cache, iter);  // 移动到头部
+
+        name_to_item.erase(item.name);
+        name_to_item[item.name] = code_to_item[item.code];
         return;
     }
 

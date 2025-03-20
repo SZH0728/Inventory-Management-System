@@ -237,7 +237,7 @@ int ExportItemMenu::export_by_code(int code) {
     }
 
     for (const Item& old_item : item) {
-        Item new_item = item_quantity_change(old_item, false);
+        Item new_item = ItemImportExport::item_quantity_change(old_item, false);
         change.emplace_back(old_item, new_item);
     }
 
@@ -260,7 +260,7 @@ int ExportItemMenu::export_by_name(std::string name) {
         return 0;
     }
     for (const Item &old_item : items) {
-        Item new_item = item_quantity_change(old_item, false);
+        Item new_item = ItemImportExport::item_quantity_change(old_item, false);
         change.emplace_back(old_item, new_item);
     }
 
@@ -284,7 +284,7 @@ int ExportItemMenu::export_by_name_like(std::string name) {
     }
 
     for (const Item &old_item : items) {
-        Item new_item = item_quantity_change(old_item, false);
+        Item new_item = ItemImportExport::item_quantity_change(old_item, false);
         change.emplace_back(old_item, new_item);
     }
 
@@ -304,7 +304,7 @@ int ExportItemMenu::export_by_name_like(std::string name) {
 // 4. 只处理出货量>0的记录
 std::string ExportItemMenu::generate() const {
     std::stringstream report;
-    report << generate_header(false);
+    report << ItemImportExport::generate_header(false);
 
     double total = 0.0;
     for (const std::pair<Item, Item> &pair : change) {
@@ -356,7 +356,7 @@ int ImportItemMenu::import_by_code(int code) {
     }
 
     for (const Item& old_item : items) {
-        Item new_item = item_quantity_change(old_item, true);
+        Item new_item = ItemImportExport::item_quantity_change(old_item, true);
         change.emplace_back(old_item, new_item);
     }
 
@@ -380,7 +380,7 @@ int ImportItemMenu::import_by_name(std::string name) {
     }
 
     for (const Item &old_item : items) {
-        Item new_item = item_quantity_change(old_item, true);
+        Item new_item = ItemImportExport::item_quantity_change(old_item, true);
         change.emplace_back(old_item, new_item);
     }
 
@@ -398,7 +398,7 @@ int ImportItemMenu::import_by_name_like(std::string name) {
     }
 
     for (const Item &old_item : engine->select_by_name_like(name)) {
-        Item new_item = item_quantity_change(old_item, true);
+        Item new_item = ItemImportExport::item_quantity_change(old_item, true);
         change.emplace_back(old_item, new_item);
     }
 
@@ -413,7 +413,7 @@ int ImportItemMenu::import_by_name_like(std::string name) {
 
 std::string ImportItemMenu::generate() const{
     std::stringstream report;
-    report << generate_header(true);
+    report << ItemImportExport::generate_header(true);
 
     for (const std::pair<Item, Item> &pair : change) {
         Item old_item = pair.first;
@@ -510,12 +510,20 @@ int Main::main() const {
     const int state = BaseMenu::main();
     if (state == 0) {
         std::ofstream export_list("export_list.txt", std::ios::out | std::ios::trunc);
-        export_list << export_item_menu.generate();
-        export_list.close();
+        if (!export_list) {
+            std::cerr << "无法打开文件: export_list.txt" << std::endl;
+        }else {
+            export_list << export_item_menu.generate();
+            export_list.close();
+        }
 
         std::ofstream import_list("import_list.txt", std::ios::out | std::ios::trunc);
-        import_list << import_item_menu.generate();
-        import_list.close();
+        if (!import_list) {
+            std::cerr << "无法打开文件: import_list.txt" << std::endl;
+        }else {
+            import_list << import_item_menu.generate();
+            import_list.close();
+        }
 
         std::cout << "数据已保存至文件: export_list.txt, import_list.txt" << std::endl;
     }
