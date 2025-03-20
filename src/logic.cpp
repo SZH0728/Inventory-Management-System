@@ -179,7 +179,7 @@ Item ItemImportExport::item_quantity_change(const Item& old_item, const bool gre
 }
 
 
-std::string ItemImportExport::generate_header(bool is_import) {
+std::string ItemImportExport::generate_header(const bool is_import) {
     std::stringstream report;
     const auto now = std::chrono::system_clock::now();
     const std::time_t time = std::chrono::system_clock::to_time_t(now);
