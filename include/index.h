@@ -8,10 +8,11 @@
 
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 class Index {
 private:
-    std::unordered_map<std::wstring, int> name_to_code;
+    std::unordered_map<std::string, int> name_to_code;
 
     /**
      * @brief 将UTF-8字符串转换为宽字符串

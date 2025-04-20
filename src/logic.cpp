@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 
 
 // 构造函数初始化业务引擎和交互界面

@@ -123,7 +123,7 @@ std::vector<Item> Engine::execute(std::list<std::function<bool(const Item &)> > 
 
         // 检查是否满足所有条件（AND逻辑）
         if (std::all_of(conditions.begin(), conditions.end(),
-            [&item](const auto &condition) {
+            [&item](const std::function<bool(const Item &)> &condition) {
                 return condition(item);
             })) {
             result.push_back(item);

@@ -3,6 +3,7 @@
 
 #include <codecvt>
 #include <locale>
+#include <algorithm>
 
 
 // 字符串转宽字符串（UTF-8 -> wstring）
@@ -24,7 +25,7 @@ std::string Index::w_str_to_str(const std::wstring &w_str) {
 
 
 // 计算宽字符串的编辑距离（动态规划实现）
-int Index::levenshtein(const std::wstring &s1, const std::wstring &s2) {
+int Index::levenshtein(const std::string &s1, const std::string &s2) {
     const size_t m = s1.size(), n = s2.size();
     std::vector<std::vector<int>> dp(m+1, std::vector<int>(n+1, 0));
 
@@ -56,26 +57,25 @@ int Index::levenshtein(const std::wstring &s1, const std::wstring &s2) {
 
 
 // 重载版本：普通字符串的编辑距离计算
-int Index::levenshtein(const std::string &s1, const std::string &s2) {
+int Index::levenshtein(const std::wstring &s1, const std::wstring &s2) {
     // 转换为宽字符后调用宽字符版本
-    return levenshtein(str_to_w_str(s1), str_to_w_str(s2));
+    return levenshtein(w_str_to_str(s1), w_str_to_str(s2));
 }
 
 
 // 插入键值对到哈希表
 void Index::insert(const std::string &name, const int code) {
-    name_to_code[str_to_w_str(name)] = code; // 存储宽字符串格式
+    name_to_code[name] = code; // 存储宽字符串格式
 }
 
 
 // 根据名称查询编码
 int Index::select(const std::string &name) {
-    const std::wstring w_name = str_to_w_str(name);
-    if (!name_to_code.count(w_name)) {
+    if (!name_to_code.count(name)) {
         throw std::out_of_range("name not found"); // 不存在时抛出异常
     }
 
-    return name_to_code[w_name];
+    return name_to_code[name];
 }
 
 
@@ -88,10 +88,9 @@ std::vector<int> Index::find(const std::string &name, const int max_distance) co
     std::vector<int> match;
 
     // 遍历所有键值对
-    for (std::pair<std::wstring, int> kv : name_to_code) {
-        std::wstring w_str = str_to_w_str(name);
-        const int distance = levenshtein(kv.first, w_str);
-        if (distance <= max_distance && distance < std::max(kv.first.size(), w_str.size())) {
+    for (std::pair<std::string, int> kv : name_to_code) {
+        const int distance = levenshtein(kv.first, name);
+        if (distance <= max_distance && distance < std::max(kv.first.size(), name.size())) {
             match.push_back(kv.second); // 符合距离要求的加入结果
         }
     }
@@ -105,14 +104,14 @@ std::vector<std::string> Index::del(const int code) {
     std::vector<std::string> result;
 
     // 遍历查找目标编码
-    for (std::pair<std::wstring, int> kv: name_to_code) {
+    for (std::pair<std::string, int> kv: name_to_code) {
         if (kv.second == code) {
-            result.push_back(w_str_to_str(kv.first));
+            result.push_back(kv.first);
         }
     }
 
     for (const std::string& name : result) {
-        name_to_code.erase(str_to_w_str(name)); // 删除目标编码
+        name_to_code.erase(name); // 删除目标编码
     }
 
     return result;
